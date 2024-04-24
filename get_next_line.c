@@ -1,65 +1,76 @@
 
-include <unistd.h>
+#include "get_next_line.h"
 #include <stdlib.h>
+#include <unistd.h>
+#include <fcntl.h>
+#include <stdio.h>
 
-#define BUFFER_SIZE 32
+char	*get_next_line(int fd)
+{
+	static char	*full_str;
+	char		line;
 
-char *get_next_line(int fd) {
-    static char buffer[BUFFER_SIZE + 1];
-    static char *pos = buffer;
-    static int bytes_read = 0;
-    static int total_bytes = 0;
-    char *line = NULL;
-    int bytes_needed = 1; // In case we only need to return '\0'
-
-    while (1) {
-        // If buffer is empty, read from file descriptor
-        if (pos - buffer >= bytes_read) {
-            bytes_read = read(fd, buffer, BUFFER_SIZE);
-            if (bytes_read <= 0) // End of file or error
-                return NULL;
-            pos = buffer;
-        }
-
-        // Look for newline character in buffer
-        char *newline_pos = NULL;
-        while (pos < buffer + bytes_read) {
-            if (*pos == '\n') {
-                newline_pos = pos;
-                break;
-            }
-            pos++;
-        }
-
-        // Allocate memory for line
-        if (newline_pos) {
-            bytes_needed = newline_pos - buffer + 1;
-            line = (char *)malloc(bytes_needed);
-            if (!line) // Memory allocation failed
-                return NULL;
-            total_bytes = 0;
-            break;
-        } else { // If no newline character found in current buffer
-            int remaining_bytes = bytes_read - (pos - buffer);
-            total_bytes += remaining_bytes;
-            bytes_needed += remaining_bytes;
-            char *temp = (char *)realloc(line, bytes_needed);
-            if (!temp) {
-                free(line);
-                return NULL;
-            }
-            line = temp;
-            pos = buffer + bytes_read; // Mark buffer as empty
-        }
-    }
-
-    // Copy data from buffer to line
-    for (int i = 0; i < total_bytes; i++) {
-        line[i] = buffer[i];
-    }
-    line[total_bytes] = '\0';
-    pos += bytes_needed;
-    return line;
+	if (fd < 0 || BUFFER_SIZE <= 0)
+		return (0);
+	full_str = read_function(fd, full_str);
+	if (!full_str)
+		return (NULL);
+	line = ft_getline(full_str);
+	full_str = ft_getrest(full_str);
+	return (line);
 }
+// read the first line of a file descriptor//
 
-#undef BUFFER_SIZE // Clean up macro definition
+char	*read_function(int fd, char *str)
+{
+	char	*tmp;
+	int		bytes;
+
+	tmp = malloc((BUFFER_SIZE + 1) * sizeof(char));
+	if (!tmp)
+		return (NULL);
+	bytes = 1;
+	while (!ft_strchr(str, '\n') && (bytes != 0))
+	{
+		bytes = read(fd, tmp, BUFFER_SIZE);
+		if (bytes == -1)
+		{
+			free(tmp);
+			return (NULL);
+		}
+		tmp[bytes] = '\0';
+		str = ft_strjoin(str, tmp);
+	}
+	free(tmp);
+	return (str);
+}
+// from the read string, take the first line and returns it//
+
+char	*ft_getline(char *full_str)
+
+{
+	int		i;
+	char	*line;
+
+	i = 0;
+	if (!full_str[i])
+		return (NULL);
+	while (full_str[i] && full_str[i] != '\n')
+		i++;
+	line = (char *)malloc(sizeof(char) * (i + 2));
+	if (!line)
+		return (NULL);
+	i = 0;
+	while (full_str[i] && full_str[i] != '\n')
+	{
+		line[i] = full_str[i];
+		i++;
+	}
+	if (full_str[i] == '\n')
+	{
+		line[i] = full_str[i];
+		i++;
+	}
+	line[i] = '\0';
+	return (line);
+}
