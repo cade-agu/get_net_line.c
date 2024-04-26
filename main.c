@@ -6,7 +6,7 @@ int	main(void)
 	int		fd; // descriptor de archivo
 	char	*line; // Variable para almacenar la linea leida
 	//Abre un arcivo para lectura
-	fd = open("archivo.txt", O_RDONLY);
+	fd = open("primeraprueba", O_RDONLY);
 	if (fd < 0)
 	{
 		printf("Error al abrir el archivo");
@@ -16,7 +16,7 @@ int	main(void)
 	line = get_next_line(fd);
 	while (line != NULL)
 	{
-		printf("%s\n", line); //Imprime la linea leida 
+		printf("%s", line); //Imprime la linea leida 
 		free(line); //libera la memoria asignada por get_next_line 
 		line = get_next_line(fd); // lee la siguiente línea
 	}
