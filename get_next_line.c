@@ -7,8 +7,8 @@
 
 char	*get_next_line(int fd)
 {
-	static char	*full_str;
-	char		line;
+	static char	*full_str =  NULL; //declaración e inicializacion de full_str//
+	char		*line;
 
 	if (fd < 0 || BUFFER_SIZE <= 0)
 		return (0);
@@ -44,7 +44,7 @@ char	*read_function(int fd, char *str)
 	free(tmp);
 	return (str);
 }
-// from the read string, take the first line and returns it//
+// función para obtener la primera linea de una cadena//
 
 char	*ft_getline(char *full_str)
 
@@ -73,4 +73,35 @@ char	*ft_getline(char *full_str)
 	}
 	line[i] = '\0';
 	return (line);
+}
+// función para obtener el resto de la cadena despues de la primera línea//
+
+char	*ft_getrest(char *full_str)
+{
+	size_t	i;
+	size_t	j;
+	char	*rest;
+
+	i = 0;
+	while (full_str[i] && full_str[i] != '\n')
+		i++;
+	if (!full_str[i])
+	{
+		free(full_str);
+		return (NULL);
+	}
+	rest = (char *)malloc(sizeof(char) * (ft_strlen(full_str) - i + 1)); // ajusto el tamaño de la asignacion de memoria//
+	if (!rest)
+		return (NULL);
+	i++; //Incrementado i para omitir el '\n"
+	j = 0;
+	while (full_str[i])
+	{
+		rest[j] = full_str[i];
+		i++;
+		j++;
+	}
+	rest[j] = '\0';
+	free(full_str);
+	return (rest);
 }
