@@ -19,5 +19,4 @@ size_t	ft_strlen(char *s);
 char	*read_function(int fd, char *str);
 char	*ft_getline(char *fullStr);
 char	*ft_getrest(char *fullStr);
-
 #endif
