@@ -1,7 +1,25 @@
 
 #include "get_next_line.h"
-/*devuelve la longitud de una cadena de caracteres*/
-size_t	ft_strlen(char *s)
+
+char	*ft_strchr(const char *s, int c)
+{
+	int	i;
+
+	i = 0;
+	if (!s)
+		return (0);
+	while (s[i])
+	{
+		if (s[i] == (char)c)
+			return ((char *)&s[i]);
+		i++;
+	}
+	if ((char)c == '\0')
+		return ((char *)&s[i]);
+	return (0);
+}
+
+size_t	ft_strlen(const char *s)
 {
 	size_t	i;
 
@@ -13,49 +31,45 @@ size_t	ft_strlen(char *s)
 	return (i);
 }
 
-char	*ft_strch(char *s, int c)
+char	*ft_strjoin(char *aux_line, char *buffer, int read_bytes)
 {
-	int	i;
-
-	i = 0;
-	if (!s)
-		return (0);
-	if (c == '\0')
-		return ((char *)&s[ft_strlen(s)]);
-	while (s[i] != '\0')
-	{
-		if (s[i] == (char) c)
-			return ((char *)&s[i]);
-		i++;
-	}
-	return (0);
-}
-//concatenar dos cadenas s1 y s2//
-
-char	*ft_strjoin(char *s1, char *s2)
-{
-	size_t	i;
-	size_t	j;
 	char	*str;
+	int		i;
+	int		j;
 
-	if (!s1)
-	{
-		s1 = (char *)malloc(1 * sizeof(char));
-		s1[0] = '\0';
-	}
-	if (!s1 || !s2)
+	if (!aux_line)
+		aux_line = ft_calloc(1, 1);
+	str = malloc((ft_strlen(aux_line) + ft_strlen(buffer) + 1));
+	if (!str)
 		return (NULL);
-	str = malloc(sizeof(char) * ((ft_strlen(s1) + ft_strlen(s2)) + 1));
-	if (str == NULL)
-		return (NULL);
-	i = -1;
+	i = 0;
 	j = 0;
-	if (s1)
-		while (s1[++i] != '\0')
-			str [i] = s1[i];
-	while (s2[j] != '\0')
-		str[i++] = s2[j++];
-	str[ft_strlen(s1) + ft_strlen(s2)] = '\0';
-	free (s1);
+	while (aux_line[j])
+		str[i++] = aux_line[j++];
+	j = 0;
+	while (j < read_bytes)
+		str[i++] = buffer[j++];
+	str[i] = '\0';
+	free (aux_line);
 	return (str);
 }
+
+void	*ft_calloc(size_t count, size_t size)
+{
+	void	*ptr;
+	size_t	len;
+	size_t	i;
+
+	len = size * count;
+	ptr = malloc(len);
+	if (!ptr)
+		return (NULL);
+	i = 0;
+	while (i < len)
+	{
+		((unsigned char *)ptr)[i] = '\0';
+		i++;
+	}
+	return (ptr);
+}
+
