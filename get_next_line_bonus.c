@@ -1,103 +1,106 @@
 
-#include "get_next_line_bonus.h"
+include "get_next_line_bonus.h"
 
-char    *get_next_line(int fd)
+char	*ft_read_line(int fd, char *aux_line)
 {
-    static char *full_str[3333];
-    char        *line;
-    
-    if (fd < 0 || BUFFER_SIZE <= 0)
-		return (0);
-	full_str[fd] = read_function(fd, full_str[fd]);
-	if (!full_str[fd])
-		return (NULL);
-	line = ft_getline(full_str[fd]);
-	full_str[fd] = ft_getrest(full_str[fd]);
-	return (line);
-}
-// read the first line of a file descriptor//
+	char	*buffer;
+	int		read_bytes;
+	char	*save_aux;
 
-char	*read_function(int fd, char *str)
-{
-	char	*tmp;
-	int		bytes;
-
-	tmp = malloc((BUFFER_SIZE + 1) * sizeof(char));
-	if (!tmp)
+	buffer = ft_calloc((BUFFER_SIZE + 1), sizeof(char));
+	if (!buffer)
 		return (NULL);
-	bytes = 1;
-	while (!ft_strchr(str, '\n') && (bytes != 0))
+	read_bytes = 1;
+	while (!ft_strchr(aux_line, '\n') && read_bytes > 0)
 	{
-		bytes = read(fd, tmp, BUFFER_SIZE);
-		if (bytes == -1)
+		read_bytes = read(fd, buffer, BUFFER_SIZE);
+		if (read_bytes == -1)
 		{
-			free(tmp);
+			free(aux_line);
+			free(buffer);
 			return (NULL);
 		}
-		tmp[bytes] = '\0';
-		str = ft_strjoin(str, tmp);
+		buffer[read_bytes] = '\0';
+		save_aux = aux_line;
+		aux_line = ft_strjoin(save_aux, buffer, read_bytes);
+		free(save_aux);
 	}
-	free(tmp);
-	return (str);
+	free(buffer);
+	return (aux_line);
 }
-// función para obtener la primera linea de una cadena//
 
-char	*ft_getline(char *full_str)
-
+char	*ft_get_line(char *aux_line)
 {
 	int		i;
-	char	*line;
+	int		j;
+	char	*get_line;
 
 	i = 0;
-	if (!full_str[i])
-		return (NULL);
-	while (full_str[i] && full_str[i] != '\n')
+	while (aux_line[i] != '\0' && aux_line[i] != '\n')
 		i++;
-	line = (char *)malloc(sizeof(char) * (i + 2));
-	if (!line)
+	get_line = ft_calloc (i + 2, sizeof(char));
+	if (!get_line)
 		return (NULL);
-	i = 0;
-	while (full_str[i] && full_str[i] != '\n')
-	{
-		line[i] = full_str[i];
-		i++;
-	}
-	if (full_str[i] == '\n')
-	{
-		line[i] = full_str[i];
-		i++;
-	}
-	line[i] = '\0';
-	return (line);
-}
-// función para obtener el resto de la cadena despues de la primera línea//
-
-char	*ft_getrest(char *full_str)
-{
-	size_t	i;
-	size_t	j;
-	char	*rest;
-
-	i = 0;
-	while (full_str[i] && full_str[i] != '\n')
-		i++;
-	if (!full_str[i])
-	{
-		free(full_str);
-		return (NULL);
-	}
-	rest = (char *)malloc(sizeof(char) * (ft_strlen(full_str) - i + 1)); // ajusto el tamaño de la asignacion de memoria//
-	if (!rest)
-		return (NULL);
-	i++; //Incrementado i para omitir el '\n"
 	j = 0;
-	while (full_str[i])
+	while (aux_line[j] != '\0' && aux_line[j] != '\n')
 	{
-		rest[j] = full_str[i];
-		i++;
+		get_line[j] = aux_line[j];
 		j++;
 	}
-	rest[j] = '\0';
-	free(full_str);
-	return (rest);
+	if (aux_line[j] == '\n')
+		get_line[j++] = '\n';
+	get_line[j] = '\0';
+	return (get_line);
 }
+
+char	*ft_clean_line(char *aux_line)
+{
+	int		i;
+	int		j;
+	char	*new_aux_line;
+
+	if (!aux_line)
+		return (NULL);
+	i = 0;
+	while (aux_line[i] != '\0' && aux_line[i] != '\n')
+		i++;
+	if ((size_t)i >= ft_strlen(aux_line))
+	{
+		free(aux_line);
+		return (NULL);
+	}
+	new_aux_line = ft_calloc(ft_strlen(aux_line) - i + 1,sizeof(char));
+	if (!new_aux_line)
+	{
+		free(aux_line);
+		return (NULL);
+	}
+	i++;
+	j = 0;
+	while (aux_line[i] != '\0')
+		new_aux_line[j++] = aux_line[i++];
+	free(aux_line);
+	aux_line = NULL;
+	return (new_aux_line);
+}
+
+char	*get_next_line(int fd)
+{
+	static char		*aux_line[1024];
+	char			*final_line;
+
+	if (fd < 0 || BUFFER_SIZE <=1 || read(fd, 0, 0) < 0)
+	{
+		free(aux_line[fd]);
+		aux_line[fd] = NULL;
+		return (NULL);
+	}
+	aux_line[fd] = ft_read_line(fd, aux_line[fd]);
+	if (!aux_line[fd])
+		return (NULL);
+	final_line = ft_get_line(aux_line[fd]);
+	aux_line[fd] = ft_clean_line(aux_line[fd]);
+	return (final_line);
+}
+
+
