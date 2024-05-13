@@ -1,4 +1,5 @@
 
+
 #ifndef GET_NEXT_LINE_BONUS_H
 # define GET_NEXT_LINE_BONUS_H
 
@@ -20,5 +21,6 @@ char	*ft_read_function(int fd, char *aux_line);
 char	*ft_get_line(char *aux_line);
 char	*ft_getrest(char *aux_line);
 void	*ft_calloc(size_t count, size_t size);
+void    free(void *ptr);
 
 #endif
